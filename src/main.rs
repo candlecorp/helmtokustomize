@@ -14,12 +14,24 @@ struct Args {
     output_path: String,
 }
 
+#[derive(Deserialize, Debug, Clone)]
+struct KubernetesConfig {
+    kind: String,
+    metadata: KubernetesMetadata
+}
+
+#[derive(Deserialize, Debug, Clone)]
+struct KubernetesMetadata {
+    name: String,
+    labels: HashMap<String, String>
+}
+
 fn main() -> Result<()> {
     let args = Args::parse();
 
-    let mut in_file = File::open(args.input_file)?;
-    let mut contents = String::new();
-    in_file.read_to_string(&mut contents)?;
+    let contents = std::fs::read_to_string(args.input_file)?;
+
+    let yaml :Vec<KubernetesConfig>= serde_yaml::from_str(&contents)?;
 
     let out_files = contents.split("---");
 
